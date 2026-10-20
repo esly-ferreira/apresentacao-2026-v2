@@ -1,0 +1,436 @@
+/* Cartão holográfico nas fotos do time (.photo) */
+
+@property --pc-active {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 0;
+}
+
+@property --pc-rotate-x {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@property --pc-rotate-y {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@property --pc-shift-x {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+@property --pc-shift-y {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+.person {
+  perspective: 900px;
+}
+
+.photo {
+  --pc-light-x: 50%;
+  --pc-light-y: 35%;
+  --pc-pointer-x: 50%;
+  --pc-pointer-y: 35%;
+  --pc-band-x: 50%;
+  --pc-band-y: 50%;
+  --pc-reach: 0;
+  --pc-rotate-x: 0deg;
+  --pc-rotate-y: 0deg;
+  --pc-shift-x: 0px;
+  --pc-shift-y: 0px;
+  --pc-tilt: 0;
+  --pc-active: 0;
+  --pc-holo: 0.8;
+  --pc-glare: 0.5;
+  --pc-parallax: 6px;
+  --pc-sheen: rgba(255, 255, 255, 0.16);
+  --pc-blend: color-dodge;
+  --pc-holo-filter: hue-rotate(0deg);
+  --pc-shade: rgba(0, 0, 0, 0.4);
+  --pc-pattern: linear-gradient(#000, #000);
+  --pc-pattern-size: 100% 100%;
+  --pc-holo-gain: 0.75;
+  border: none;
+  box-shadow:
+    0 18px 36px -18px rgba(0, 0, 0, 0.85),
+    0 6px 14px -8px rgba(0, 0, 0, 0.55),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  transform: rotateX(var(--pc-rotate-x)) rotateY(var(--pc-rotate-y));
+  transition:
+    transform 0.75s var(--ease),
+    --pc-active 0.7s ease,
+    --pc-rotate-x 0.75s var(--ease),
+    --pc-rotate-y 0.75s var(--ease),
+    --pc-shift-x 0.75s var(--ease),
+    --pc-shift-y 0.75s var(--ease);
+}
+
+.is-lead .photo {
+  border: none;
+}
+
+.photo-holo,
+.photo-sheen,
+.photo-glare,
+.photo-shade {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.photo-holo,
+.photo-sheen {
+  z-index: 1;
+}
+
+.photo-sheen {
+  background: radial-gradient(
+    farthest-corner circle at calc(var(--pc-light-x) - 10px) calc(var(--pc-light-y) - 10px),
+    var(--pc-sheen) 0%,
+    transparent 55%
+  );
+  opacity: calc(var(--pc-holo) * var(--pc-active));
+}
+
+.photo-holo {
+  --pc-spectrum: repeating-linear-gradient(
+    0deg,
+    hsl(2, 100%, 73%) 5%,
+    hsl(53, 100%, 69%) 10%,
+    hsl(93, 100%, 69%) 15%,
+    hsl(176, 100%, 76%) 20%,
+    hsl(228, 100%, 74%) 25%,
+    hsl(260, 100%, 76%) 30%,
+    hsl(2, 100%, 73%) 35%
+  );
+  --pc-bars: repeating-linear-gradient(
+    -45deg,
+    #0e152e 0%,
+    hsl(180, 10%, 60%) 3.8%,
+    hsl(180, 29%, 66%) 4.5%,
+    hsl(180, 10%, 60%) 5.2%,
+    #0e152e 10%,
+    #0e152e 12%
+  );
+  --pc-falloff: radial-gradient(
+    farthest-corner circle at var(--pc-pointer-x) var(--pc-pointer-y),
+    hsla(0, 0%, 0%, 0.1) 12%,
+    hsla(0, 0%, 0%, 0.15) 20%,
+    hsla(0, 0%, 0%, 0.25) 120%
+  );
+  background-image: var(--pc-spectrum), var(--pc-bars), var(--pc-falloff);
+  background-position:
+    0 var(--pc-band-y),
+    var(--pc-band-x) var(--pc-band-y),
+    center;
+  background-size: 500% 500%, 300% 300%, 200% 200%;
+  background-blend-mode: color, hard-light;
+  mix-blend-mode: soft-light;
+  filter: brightness(calc(0.66 + 0.19 * var(--pc-active))) contrast(calc(1.33 + 0.17 * var(--pc-active)))
+    saturate(calc(0.33 + 0.17 * var(--pc-active))) var(--pc-holo-filter);
+  opacity: calc(var(--pc-holo) * var(--pc-holo-gain) * (0.5 + 0.5 * var(--pc-active)));
+  -webkit-mask-image: var(--pc-pattern);
+  -webkit-mask-size: var(--pc-pattern-size);
+  -webkit-mask-position: calc(50% - var(--pc-shift-x) * 1.5) calc(65% - var(--pc-shift-y) * 1.5);
+  -webkit-mask-repeat: repeat;
+  mask-image: var(--pc-pattern);
+  mask-size: var(--pc-pattern-size);
+  mask-position: calc(50% - var(--pc-shift-x) * 1.5) calc(65% - var(--pc-shift-y) * 1.5);
+  mask-repeat: repeat;
+}
+
+.photo img {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transform: none;
+  transition: filter 0.9s var(--ease);
+}
+
+.person.reveal .photo img {
+  object-fit: contain;
+  object-position: center top;
+  transform: scale(1.35);
+  transform-origin: center top;
+}
+
+.photo::after {
+  z-index: 1;
+}
+
+.photo-glare,
+.photo-shade {
+  z-index: 2;
+}
+
+.photo-glare {
+  background: radial-gradient(
+    farthest-corner circle at var(--pc-light-x) var(--pc-light-y),
+    rgba(255, 255, 255, 0.8) 0%,
+    rgba(255, 255, 255, 0.36) 20%,
+    rgba(255, 255, 255, 0) 60%
+  );
+  mix-blend-mode: overlay;
+  opacity: calc(var(--pc-glare) * var(--pc-active));
+}
+
+.photo-shade {
+  background: radial-gradient(
+    farthest-corner circle at var(--pc-light-x) var(--pc-light-y),
+    transparent 30%,
+    var(--pc-shade) 100%
+  );
+  opacity: calc(var(--pc-glare) * var(--pc-tilt));
+}
+
+.person:hover .photo img {
+  filter: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .photo,
+  .photo img,
+  .person:hover .photo img {
+    transform: none;
+  }
+
+  .person-modal__backdrop,
+  .person-modal__panel {
+    transition: none;
+  }
+}
+
+.person-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 5.2rem 3rem 3.5rem;
+}
+
+.person-modal[hidden] {
+  display: none;
+}
+
+.person-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(4, 11, 5, 0.74);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.45s var(--ease);
+}
+
+.person-modal.is-open .person-modal__backdrop {
+  opacity: 1;
+}
+
+.person-modal__panel {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(16rem, 1fr);
+  width: min(62rem, 100%);
+  height: min(32rem, calc(100vh - 8.5rem));
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-top: 2px solid var(--gold);
+  border-radius: calc(var(--radius) + 0.15rem);
+  background:
+    radial-gradient(ellipse 80% 60% at 0% 0%, var(--gold-soft), transparent 58%),
+    linear-gradient(180deg, #0c1b0e 0%, #08130a 100%);
+  box-shadow: 0 30px 64px -30px rgba(0, 0, 0, 0.88);
+  opacity: 0;
+  transform: translate3d(0, 0.8rem, 0);
+  transition:
+    opacity 0.45s var(--ease),
+    transform 0.55s var(--ease);
+}
+
+.person-modal.is-open .person-modal__panel {
+  opacity: 1;
+  transform: none;
+}
+
+.person-modal__close {
+  position: absolute;
+  top: 0.85rem;
+  right: 0.85rem;
+  z-index: 2;
+  width: 2.2rem;
+  height: 2.2rem;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 0.65rem;
+  background: rgba(4, 11, 5, 0.45);
+  color: var(--soft);
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.person-modal__close:hover {
+  border-color: rgba(220, 172, 108, 0.45);
+  color: var(--gold);
+}
+
+.person-modal__close:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.person-modal__photo {
+  position: relative;
+  width: auto;
+  height: 100%;
+  aspect-ratio: 1792 / 2400;
+  justify-self: start;
+  overflow: hidden;
+  background: var(--thumb, none) center top / contain no-repeat, #060f07;
+}
+
+.person-modal__photo img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center top;
+  transition: opacity 0.35s var(--ease);
+}
+
+.person-modal__photo.is-loading img {
+  opacity: 0;
+}
+
+.person-modal__photo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 35%,
+    rgba(220, 172, 108, 0.16) 50%,
+    transparent 65%
+  );
+  background-size: 250% 100%;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s var(--ease);
+}
+
+.person-modal__photo.is-loading::after {
+  opacity: 1;
+  animation: person-photo-shimmer 1.2s linear infinite;
+}
+
+@keyframes person-photo-shimmer {
+  from { background-position: 100% 0; }
+  to { background-position: -150% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .person-modal__photo img {
+    transition: none;
+  }
+
+  .person-modal__photo.is-loading::after {
+    animation: none;
+  }
+}
+
+.person-modal__body {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.4rem;
+  min-width: 0;
+  justify-content: center;
+  padding: 2.4rem 2.8rem 2.2rem 2.2rem;
+  overflow: hidden;
+}
+
+.person-modal__mark {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  z-index: 0;
+  height: 185%;
+  width: auto;
+  aspect-ratio: 519 / 565;
+  transform: translate(33%, -50%);
+  fill: #ffffff4d;
+  opacity: 0.1;
+  pointer-events: none;
+}
+
+.person-modal__body > :not(.person-modal__mark) {
+  position: relative;
+  z-index: 1;
+}
+
+.person-modal__sector {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.person-modal__name {
+  margin: 0.15rem 0 0;
+  font-size: 2rem;
+  font-weight: 650;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  color: var(--text);
+}
+
+.person-modal__role {
+  margin: 0 0 0.85rem;
+  font-size: 1rem;
+  color: var(--muted);
+}
+
+.person-modal__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin: 0.45rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.person-modal__list li {
+  position: relative;
+  padding-left: 1.2rem;
+  color: var(--soft);
+  font-size: 0.98rem;
+  line-height: 1.45;
+}
+
+.person-modal__list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.7em;
+  width: 0.75rem;
+  height: 1px;
+  background: var(--gold);
+}
